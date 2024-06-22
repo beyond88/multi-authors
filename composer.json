@@ -1,0 +1,34 @@
+{
+  "name": "beyond88/multi-author",
+  "description": "Enables multiple author attribution per post with a dedicated contributors box displaying their names, Gravatars, and links to author pages.",
+  "autoload": {
+    "psr-4": {
+      "MultiAuthors\\": "includes/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Mohiuddin Abdul Kader",
+      "email": "muhin.cse.diu@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require-dev": {
+    "phpunit/phpunit": "^9.0",
+    "wp-phpunit/wp-phpunit": "dev-master",
+    "dealerdirect/phpcodesniffer-composer-installer": "*",
+    "wp-coding-standards/wpcs": "*",
+    "phpcompatibility/phpcompatibility-wp": "*",
+    "yoast/phpunit-polyfills": "^2.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MultiAuthors\\Tests\\": "tests/"
+    }
+  }
+}
