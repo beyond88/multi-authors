@@ -33,25 +33,39 @@ class Frontend {
             if (!empty($contributors)) {
                 $content .= '<div class="ma-contributors-box">';
                 $content .= '<h3>'.__('Contributors', 'multi-authors').'</h3>';
-                $content .= '<ul>';
+                $content .= '<div class="contributors-container">'; // Use a div container for flex layout
     
                 foreach ($contributors as $contributor_id) {
                     $user_info = get_userdata($contributor_id);
-                    $avatar = get_avatar($contributor_id, 32);
-                    $author_link = get_author_posts_url($contributor_id);
-                    $content .= '<li>';
-                    $content .= '<a href="' . esc_url($author_link) . '">';
-                    $content .= $avatar;
-                    $content .= esc_html($user_info->display_name);
-                    $content .= '</a>';
-                    $content .= '</li>';
+                    if ($user_info) {
+                        $avatar = get_avatar($contributor_id, 32);
+                        $author_link = get_author_posts_url($contributor_id);
+                        $biography = get_user_meta($contributor_id, 'description', true);
+    
+                        $content .= '<div class="contributor">';
+                        $content .= '<div class="contributor-avatar">';
+                        $content .= $avatar;
+                        $content .= '</div>';
+                        $content .= '<div class="contributor-details">';
+                        $content .= '<a href="' . esc_url($author_link) . '">';
+                        $content .= esc_html($user_info->display_name);
+                        $content .= '</a>';
+
+                        if (!empty($biography)) {
+                            $content .= '<p>' . esc_html($biography) . '</p>';
+                        }
+
+                        $content .= '</div>';
+                        $content .= '</div>';
+                    }
                 }
     
-                $content .= '</ul>';
-                $content .= '</div>';
+                $content .= '</div>'; // Close contributors-container
+                $content .= '</div>'; // Close ma-contributors-box
             }
         }
     
         return $content;
     }
+    
 }
