@@ -7,16 +7,4 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">includes</directory>
-        </whitelist>
-    </filter>
-
-    <!-- Logging configuration -->
-    <logging>
-        <log type="junit" target="build/logs/junit.xml" logIncompleteSkipped="false"/>
-        <log type="testdox-text" target="build/logs/testdox.txt"/>
-        <log type="errorlog" target="build/logs/error.log"/>
-    </logging>
 </phpunit>

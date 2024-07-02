@@ -116,3 +116,22 @@ function multi_authors() {
 
 // kick-off the plugin
 multi_authors();
+
+function ma_modify_author_archive_query($query) {
+    if (is_author() && $query->is_main_query()) {
+        $author_id = get_query_var('author');
+        
+        // Get posts where this author ID is in _ma_contributors meta field
+        $meta_query = array(
+            array(
+                'key'     => '_ma_contributors',
+                'value'   => '"' . $author_id . '"',
+                'compare' => 'LIKE',
+            ),
+        );
+
+        $query->set('meta_query', $meta_query);
+    }
+}
+
+add_action('pre_get_posts', 'ma_modify_author_archive_query');

@@ -29,11 +29,6 @@ class MultiAuthorsi18n {
 	 * @return	void
 	 */
 	public function load_plugin_textdomain() {
-
-		load_plugin_textdomain(
-			'multi-authors',
-			false,
-			dirname(dirname(MULTI_AUTHORS_BASENAME)) . '/languages/'
-		);
+		load_plugin_textdomain('multi-authors', false, 'languages');
 	}
 }

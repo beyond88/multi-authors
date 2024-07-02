@@ -72,21 +72,20 @@ class Admin {
         if ( ! isset( $_POST['ma_contributors_nonce'] ) || ! wp_verify_nonce( $_POST['ma_contributors_nonce'], 'ma_save_contributors' ) ) {
             return;
         }
-
+    
         // Check autosave
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return;
         }
-
+    
         // Check permissions
-        if ( isset( $_POST['post_type'] ) && 'post' == $_POST['post_type'] ) {
-            if ( ! current_user_can( 'edit_post', $post_id ) ) {
-                return;
-            }
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            return;
         }
-
+    
         // Save contributors
-        $contributors = isset( $_POST['ma_contributors'] ) ? array_map( 'sanitize_text_field', $_POST['ma_contributors'] ) : array();
+        $contributors = isset( $_POST['ma_contributors'] ) ? array_map( 'intval', $_POST['ma_contributors'] ) : array();
         update_post_meta( $post_id, '_ma_contributors', $contributors );
     }
+    
 }

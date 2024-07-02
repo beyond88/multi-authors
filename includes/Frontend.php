@@ -15,6 +15,8 @@ class Frontend {
      */
     public function __construct() {
         add_filter('the_content', array( $this, 'ma_display_contributors' ) );
+        add_action( 'pre_get_posts', array( $this, 'ma_modify_author_archive_query' ) );
+
     }
 
     /**
@@ -40,7 +42,9 @@ class Frontend {
                     if ($user_info) {
                         $avatar = get_avatar($contributor_id, 32);
                         $author_link = get_author_posts_url($contributor_id);
-                        $biography = get_user_meta($contributor_id, 'description', true);
+    
+                        // Get Biographical Info
+                        $biography = get_the_author_meta('description', $contributor_id);
     
                         $content .= '<div class="contributor">';
                         $content .= '<div class="contributor-avatar">';
@@ -50,22 +54,42 @@ class Frontend {
                         $content .= '<a href="' . esc_url($author_link) . '">';
                         $content .= esc_html($user_info->display_name);
                         $content .= '</a>';
-
+                        
+                        // Display Biographical Info
                         if (!empty($biography)) {
                             $content .= '<p>' . esc_html($biography) . '</p>';
                         }
-
-                        $content .= '</div>';
-                        $content .= '</div>';
+                        
+                        $content .= '</div>'; // Close .contributor-details
+                        $content .= '</div>'; // Close .contributor
                     }
                 }
     
-                $content .= '</div>'; // Close contributors-container
-                $content .= '</div>'; // Close ma-contributors-box
+                $content .= '</div>'; // Close .contributors-container
+                $content .= '</div>'; // Close .ma-contributors-box
             }
         }
     
         return $content;
+    }    
+
+    public function ma_modify_author_archive_query($query) {
+        if ( is_author() && $query->is_main_query() ) {
+            $author_id = get_query_var( 'author' );
+    
+            // Get posts where this author ID is in _ma_contributors meta field
+            $meta_query = array(
+                array(
+                    'key'     => '_ma_contributors',
+                    'value'   => '"' . $author_id . '"',
+                    'compare' => 'LIKE',
+                ),
+            );
+    
+            $query->set( 'meta_query', $meta_query );
+        }
     }
+    
+    
     
 }
