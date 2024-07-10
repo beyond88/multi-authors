@@ -42,6 +42,7 @@ This plugin is licensed under the GNU General Public License (GPLv3).
 
 ## Site credentials
 
+- URL: [https://products.thebitcraft.com](https://products.thebitcraft.com)
 - User: hossain
 - Password: yZR&6DH&bT1T3
 
