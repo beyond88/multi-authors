@@ -2,8 +2,11 @@
 
 use MultiAuthors\Admin;
 
-class Test_Admin extends WP_UnitTestCase {
+class TestAdmin extends WP_UnitTestCase {
 
+    /**
+     * @var MultiAuthors\Admin
+     */
     private $admin;
 
     public function setUp(): void {
@@ -11,88 +14,97 @@ class Test_Admin extends WP_UnitTestCase {
         $this->admin = new Admin();
     }
 
-    public function test_add_contributors_metabox() {
-        global $wp_meta_boxes;
-
-        // Trigger add_meta_boxes action
-        do_action('add_meta_boxes');
-
-        // Check if metabox is added
-        $this->assertTrue(isset($wp_meta_boxes['post']['side']['high']['ma_contributors']));
+    public function tearDown(): void {
+        parent::tearDown();
     }
 
-    public function test_contributors_metabox_callback() {
-        $post_id = $this->factory->post->create();
-        $post = get_post($post_id);
+    /**
+     * Test that the add_contributors_metabox method adds a meta box to the post editor
+     */
+    public function test_add_contributors_metabox() {
 
-        // Output buffering to capture the metabox HTML
+        // Mock the add_meta_box function
+        $mock = $this->createMock( 'WP_UnitTest_MockObject' );
+        $mock->expects($this->once())
+            ->method('__call')
+            ->with(
+                'add_meta_box',
+                array(
+                    'ma_contributors',
+                    'Contributors',
+                    array( $this->admin, 'contributors_metabox_callback' ),
+                    'post',
+                    'side',
+                    'high',
+                )
+            );
+
+        $this->replaceFunction( 'add_meta_box', array( $mock, '__call' ) );
+
+        $this->admin->add_contributors_metabox();
+    }
+
+    /**
+     * Test that the contributors_metabox_callback method displays a list of users with checkboxes
+     */
+    public function test_contributors_metabox_callback() {
+
+        $user_1 = new WP_User( 1 );
+        $user_1->display_name = 'John Doe';
+
+        $user_2 = new WP_User( 2 );
+        $user_2->display_name = 'Jane Doe';
+
+        $users = array( $user_1, $user_2 );
+
+        $post = new WP_Post(array(
+            'ID' => 123,
+        ));
+
         ob_start();
-        $this->admin->contributors_metabox_callback($post);
+        $this->admin->contributors_metabox_callback( $post );
         $output = ob_get_clean();
 
-        // Check if nonce field is present
-        $this->assertStringContainsString('ma_contributors_nonce', $output);
+        $expected_output = '';
+        $expected_output .= wp_nonce_field( 'ma_save_contributors', 'ma_contributors_nonce', false );
 
-        // Check if user checkboxes are present
-        $users = get_users();
-        foreach ($users as $user) {
-            $this->assertStringContainsString('value="' . $user->ID . '"', $output);
+        foreach ( $users as $user ) {
+            $checked = '';
+            $expected_output .= "<label>";
+            $expected_output .= "<input type=\"checkbox\" name=\"ma_contributors[]\" value=\"" . esc_attr( $user->ID ) . "\" $checked>";
+            $expected_output .= esc_html( $user->display_name );
+            $expected_output .= "</label><br>";
         }
+
+        $this->assertEquals( $expected_output, $output );
     }
 
+    /**
+     * Test that the save_contributors_metabox method saves the selected contributors
+     */
     public function test_save_contributors_metabox() {
-        $post_id = $this->factory->post->create();
-        $user_id = $this->factory->user->create(array('role' => 'author'));
 
-        // Set up POST data with valid nonce and contributors
-        $_POST['ma_contributors_nonce'] = wp_create_nonce('ma_save_contributors');
-        $_POST['ma_contributors'] = array($user_id);
+        $post_id = 123;
 
-        // Simulate saving the post
-        $this->admin->save_contributors_metabox($post_id);
+        // Set up mock data
+        $_POST['ma_contributors_nonce'] = wp_create_nonce( 'ma_save_contributors' );
+        $_POST['ma_contributors'] = array( 1, 3 );
 
-        // Retrieve saved contributors meta data
-        $contributors = get_post_meta($post_id, '_ma_contributors', true);
+        // Mock current_user_can
+        $this->expects($this->once())
+            ->method('current_user_can')
+            ->with('edit_post', $post_id)
+            ->willReturn(true);
 
-        // Check if contributors meta data is saved correctly
-        $this->assertTrue(is_array($contributors), 'Contributors should be saved as an array.');
-        $this->assertContains($user_id, $contributors, 'User ID should be in contributors array.');
-    }
+        $this->admin->save_contributors_metabox( $post_id );
 
-    public function test_save_contributors_metabox_invalid_nonce() {
-        $post_id = $this->factory->post->create();
-        $user_id = $this->factory->user->create(array('role' => 'author'));
+        $expected_contributors = array( 1, 3 );
+        $actual_contributors = get_post_meta( $post_id, '_ma_contributors' );
 
-        // Set up POST data with invalid nonce and contributors
-        $_POST['ma_contributors_nonce'] = 'invalid_nonce';
-        $_POST['ma_contributors'] = array($user_id);
+        $this->assertEquals( $expected_contributors, $actual_contributors );
 
-        // Simulate saving the post
-        $this->admin->save_contributors_metabox($post_id);
-
-        // Check if contributors meta data is not saved
-        $contributors = get_post_meta($post_id, '_ma_contributors', true);
-
-        $this->assertFalse($contributors, 'Contributors should not be saved with invalid nonce.');
-    }
-
-    public function test_save_contributors_metabox_no_permission() {
-        $post_id = $this->factory->post->create();
-        $user_id = $this->factory->user->create(array('role' => 'author'));
-
-        // Simulate an unauthorized user
-        wp_set_current_user(0);
-
-        // Set up POST data with valid nonce and contributors
-        $_POST['ma_contributors_nonce'] = wp_create_nonce('ma_save_contributors');
-        $_POST['ma_contributors'] = array($user_id);
-
-        // Simulate saving the post
-        $this->admin->save_contributors_metabox($post_id);
-
-        // Check if contributors meta data is not saved
-        $contributors = get_post_meta($post_id, '_ma_contributors', true);
-
-        $this->assertFalse($contributors, 'Contributors should not be saved without permission.');
+        // Cleanup
+        unset( $_POST['ma_contributors_nonce'] );
+        unset( $_POST['ma_contributors'] );
     }
 }

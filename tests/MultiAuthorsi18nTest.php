@@ -1,10 +1,7 @@
 <?php
-
 use MultiAuthors\MultiAuthorsi18n;
-use Brain\Monkey;
-use Brain\Monkey\Functions;
 
-class Test_MultiAuthorsi18n extends \WP_UnitTestCase {
+class Test_MultiAuthorsi18n extends WP_UnitTestCase {
 
     /**
      * @var MultiAuthorsi18n
@@ -16,16 +13,7 @@ class Test_MultiAuthorsi18n extends \WP_UnitTestCase {
      */
     public function setUp(): void {
         parent::setUp();
-        Monkey\setUp();
         $this->i18n = new MultiAuthorsi18n();
-    }
-
-    /**
-     * Tear down the test environment
-     */
-    public function tearDown(): void {
-        Monkey\tearDown();
-        parent::tearDown();
     }
 
     /**
@@ -39,16 +27,25 @@ class Test_MultiAuthorsi18n extends \WP_UnitTestCase {
      * Test if load_plugin_textdomain is called
      */
     public function test_load_plugin_textdomain() {
-        // Mock the load_plugin_textdomain function
-        $textdomain = 'multi-authors';
-        $mofile = 'languages';
+        // Temporarily replace the load_plugin_textdomain function
+        $original_load_plugin_textdomain = 'load_plugin_textdomain';
+        $mocked_textdomain = null;
+        $mocked_mofile = null;
 
-        Functions\expect('load_plugin_textdomain')
-            ->once()
-            ->with($textdomain, false, $mofile)
-            ->andReturn(true);
+        add_filter('load_textdomain', function($domain, $mofile) use (&$mocked_textdomain, &$mocked_mofile) {
+            $mocked_textdomain = $domain;
+            $mocked_mofile = $mofile;
+            return true;
+        }, 10, 2);
 
         // Call the method
         $this->i18n->load_plugin_textdomain();
+
+        // Verify the parameters
+        $this->assertEquals('multi-authors', $mocked_textdomain, 'The load_textdomain function should be called with the correct textdomain.');
+        $this->assertStringContainsString('languages', $mocked_mofile, 'The load_textdomain function should be called with the correct language directory.');
+
+        // Restore the original load_plugin_textdomain function
+        remove_filter('load_textdomain', 10);
     }
 }

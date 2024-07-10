@@ -67,25 +67,25 @@ class Admin {
      * 
      * @param   int $post_id The post ID
      */
-    public function save_contributors_metabox( $post_id ) {
+    public function save_contributors_metabox($post_id) {
         // Check nonce
-        if ( ! isset( $_POST['ma_contributors_nonce'] ) || ! wp_verify_nonce( $_POST['ma_contributors_nonce'], 'ma_save_contributors' ) ) {
+        if (!isset($_POST['ma_contributors_nonce']) || !wp_verify_nonce($_POST['ma_contributors_nonce'], 'ma_save_contributors')) {
             return;
         }
-    
+
         // Check autosave
-        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return;
         }
-    
+
         // Check permissions
-        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+        if (!current_user_can('edit_post', $post_id)) {
             return;
         }
-    
+
         // Save contributors
-        $contributors = isset( $_POST['ma_contributors'] ) ? array_map( 'intval', $_POST['ma_contributors'] ) : array();
-        update_post_meta( $post_id, '_ma_contributors', $contributors );
+        $contributors = isset($_POST['ma_contributors']) ? array_map('intval', $_POST['ma_contributors']) : array();
+        update_post_meta($post_id, '_ma_contributors', $contributors);
     }
     
 }
