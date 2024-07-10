@@ -33,12 +33,12 @@ This plugin is licensed under the GNU General Public License (GPLv3).
 
 ## Demo
 
-- [Contributors] (https://products.thebitcraft.com/2024/05/23/hello-world/)
+- [Contributors](https://products.thebitcraft.com/2024/05/23/hello-world/)
 
 ## Screenshots
 
-- [Contributors assign] (https://github.com/beyond88/multi-authors/blob/main/screenshots/contributors-check-list.png)
-- [Contributors display] (https://github.com/beyond88/multi-authors/blob/main/screenshots/contributors-display.png)
+- [Contributors assign](https://github.com/beyond88/multi-authors/blob/main/screenshots/contributors-check-list.png)
+- [Contributors display](https://github.com/beyond88/multi-authors/blob/main/screenshots/contributors-display.png)
 
 ## Site credentials
 
