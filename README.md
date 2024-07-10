@@ -31,3 +31,18 @@ Feel free to contribute to the plugin by forking the repository on GitHub and su
 
 This plugin is licensed under the GNU General Public License (GPLv3).
 
+## Demo
+
+- [Contributors] (https://products.thebitcraft.com/2024/05/23/hello-world/)
+
+## Screenshots
+
+- [Contributors assign] (https://github.com/beyond88/multi-authors/blob/main/screenshots/contributors-check-list.png)
+- [Contributors display] (https://github.com/beyond88/multi-authors/blob/main/screenshots/contributors-display.png)
+
+## Site credentials
+
+- User: hossain
+- Password: yZR&6DH&bT1T3
+
+
